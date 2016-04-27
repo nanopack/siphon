@@ -19,7 +19,8 @@ stream(char *prefix)
 
   while (fgets(buffer, BUF_SIZE, stdin)) {
 
-    for (int i = 0; i < strlen(buffer); i++) {
+    int i;
+    for (i = 0; i < strlen(buffer); i++) {
       char c = buffer[i];
 
       // print the character (prefixed if this is a new line)
