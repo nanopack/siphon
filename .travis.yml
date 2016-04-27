@@ -6,5 +6,7 @@ compiler:
 
 before_install:
   - autoreconf -fvi
+  - ./configure
+  - make
 
 script: ./test.sh

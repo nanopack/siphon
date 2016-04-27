@@ -4,13 +4,15 @@ input="$(cat <<-END
 one
 two
 three
-END)"
+END
+)"
 
 expected="$(cat <<-END
 +> one
 +> two
 +> three
-END)"
+END
+)"
 
 output=$(echo "$input" | src/siphon --prefix '+> ')
 
