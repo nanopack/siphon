@@ -5,7 +5,7 @@
 #include <stdlib.h>   // standard library definitions
 #include <getopt.h>   // command option parsing
 
-#define BUF_SIZE 1024
+#define BUF_SIZE 2
 
 void
 stream(char *prefix)
@@ -16,6 +16,9 @@ stream(char *prefix)
   // indicate if we're on a new line. If true, the next character should
   // be printed with the prefix provided.
   bool new_line = true;
+
+  //turn off buffering on stdin
+  setvbuf(stdin, NULL, _IONBF, 0);
 
   while (fgets(buffer, BUF_SIZE, stdin)) {
 
