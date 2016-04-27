@@ -1,4 +1,6 @@
-[![Build Status](https://travis-ci.org/nanopack/portal.svg)](https://travis-ci.org/nanopack/portal)
+[![Build Status](https://travis-ci.org/nanopack/portal.svg)](https://travis-ci.org/nanopack/siphon)
+
+# Siphon
 
 Siphon is an output stream formatter, used primarily as a means to prefix output from a program.
 
