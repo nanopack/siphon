@@ -4,6 +4,9 @@
 #include <unistd.h>   // standard symbolic constants and types
 #include <stdlib.h>   // standard library definitions
 #include <getopt.h>   // command option parsing
+#include <tcl8.6/expect.h> // exp_spawnv
+#include <termios.h>
+#include <sys/ioctl.h>
 
 #define BUF_SIZE 2
 
@@ -43,9 +46,9 @@ adjust_goto_seq(char *seq, int offset)
 }
 
 void
-stream(char *prefix)
+stream(char *prefix, FILE *in)
 {
-  // buffer to hold the characters read from stdin
+  // buffer to hold the characters read from in
   char buffer[BUF_SIZE];
 
   // indicate if we're on a new line. If true, the next character should
@@ -61,10 +64,10 @@ stream(char *prefix)
   // store an index for the escape sequence character count
   int escape_seq_index = 0;
 
-  //turn off buffering on stdin
-  setvbuf(stdin, NULL, _IONBF, 0);
+  //turn off buffering on in
+  setvbuf(in, NULL, _IONBF, 0);
 
-  while (fgets(buffer, BUF_SIZE, stdin)) {
+  while (fgets(buffer, BUF_SIZE, in)) {
 
     if (first_line == true) {
       first_line = false;
@@ -138,7 +141,7 @@ int
 main(int argc, char *argv[])
 {
   // user-specified prefix string
-  char *prefix;
+  char *prefix = NULL;
   bool prefix_set = false;
 
   // long options
@@ -152,7 +155,7 @@ main(int argc, char *argv[])
   int opt_index = 0;
 
   int c;
-  while ((c = getopt_long(argc, argv, ":p:h", long_opts, &opt_index)) != -1) {
+  while ((c = getopt_long(argc, argv, "p:h", long_opts, &opt_index)) != -1) {
     switch (c) {
       case 'p':
         prefix = malloc(strlen(optarg) * sizeof(char) + 1);
@@ -165,10 +168,47 @@ main(int argc, char *argv[])
     }
   }
 
+  if (optind == argc) {
+    // If optind == argc, then stream from stdin
+    if (prefix_set == false)
+      stream("", stdin);
+    else
+      stream(prefix, stdin);
+  } else {
+    // If optind > argc, then try running the command and streaming from that
+
+    struct termios ttyOrig;
+    struct winsize ws;
+    struct winsize wsOrig;
+
+    if (tcgetattr(STDIN_FILENO, &ttyOrig) == -1)
+        fprintf(stderr, "tcgetattr\n");
+    if (ioctl(STDIN_FILENO, TIOCGWINSZ, (char *) &ws) < 0)
+        fprintf(stderr, "TIOCGWINSZ error\n");
+
+    wsOrig = ws;
+
+    if (prefix_set == true)
+      ws.ws_col -= strlen(prefix);
+    if (ioctl(STDIN_FILENO, TIOCSWINSZ, (char *) &ws) < 0)
+      fprintf(stderr,"TIOCSWINSZ error\n");
+
+    int fint = exp_spawnv(argv[optind],&argv[optind]);
+    FILE *fd = fdopen(fint, "r");
+    setbuf(fd,(char *)0);
+
+    if (prefix_set == false)
+      stream("", fd);
+    else {
+      stream(prefix, fd);
+      printf("done\n");
+      if (ioctl(STDIN_FILENO, TIOCSWINSZ, (char *) &wsOrig) < 0)
+        fprintf(stderr, "TIOCSWINSZ error\n");
+    }
+    if (tcsetattr(STDIN_FILENO, &ttyOrig) == -1)
+      fprintf(stderr, "tcsetattr\n");
+
+  }
 
 
-  if (prefix_set == false)
-    stream("");
-  else
-    stream(prefix);
 }
