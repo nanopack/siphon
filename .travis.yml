@@ -5,6 +5,8 @@ compiler:
   - gcc
 
 before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get -y install expect-dev
   - autoreconf -fvi
   - ./configure
   - make
