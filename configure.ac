@@ -26,12 +26,17 @@ AC_CHECK_LIB(expect, exp_spawnv,
   [AC_MSG_ERROR([expect libraries not found.])]
 )
 
+AC_CHECK_LIB(util, openpty,
+  [],
+  [AC_MSG_ERROR([util libraries not found.])]
+)
+
 # Checks for header files.
 
-AC_CHECK_HEADERS(tcl8.6/expect.h,
-  [],
-  [AC_MSG_ERROR([expect header files not found.]); break]
-)
+# AC_CHECK_HEADERS(tcl8.6/expect.h,
+#   [],
+#   [AC_MSG_ERROR([expect header files not found.]); break]
+# )
 
 # Checks for typedefs, structures, and compiler characteristics.
 
