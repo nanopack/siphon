@@ -42,7 +42,7 @@ fi
 for i in test1 test2
 do
   src/siphon --prefix "=> " -- tests/sloth.sh tests/${i}.in | tee /tmp/${i}.out
-  if [ "$(md5sum tests/${i}.out | awk -e '{print $1}')" = "$(md5sum /tmp/${i}.out | awk -e '{print $1}')" ]; then
+  if [ "$(md5sum tests/${i}.out | awk '{print $1}')" = "$(md5sum /tmp/${i}.out | awk '{print $1}')" ]; then
   	echo "SUCCESS"
   else
   	failed="true"
