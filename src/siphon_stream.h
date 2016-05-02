@@ -1,0 +1,1 @@
+void  stream(char *prefix, FILE *in);
