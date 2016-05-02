@@ -1,3 +1,49 @@
+/* The functions in this file came from the expect project.
+ * http://expect.sourceforge.net/
+ * They have had portions removed that are not needed for
+ * compiling on modern (2016) distributions of Linux. Also
+ * stripped out things relating to TCL.
+ * Headers of the files where code was copied from are included
+ */
+
+/* pty_termios.c - routines to allocate ptys - termios version
+
+Written by: Don Libes, NIST, 2/6/90
+
+This file is in the public domain.  However, the author and NIST
+would appreciate credit if you use this file or parts of it.
+
+*/
+
+/* exp_pty.c - generic routines to allocate and test ptys
+
+Written by: Don Libes, NIST,  3/9/93
+
+Design and implementation of this program was paid for by U.S. tax
+dollars.  Therefore it is public domain.  However, the author and NIST
+would appreciate credit if this program or parts of it are used.
+
+*/
+
+/* exp_command.c - the bulk of the Expect commands
+
+Written by: Don Libes, NIST, 2/6/90
+
+Design and implementation of this program was paid for by U.S. tax
+dollars.  Therefore it is public domain.  However, the author and NIST
+would appreciate credit if this program or parts of it are used.
+
+*/
+
+/* exp_clib.c - top-level functions in the expect C library, libexpect.a
+
+Written by: Don Libes, libes@cme.nist.gov, NIST, 12/3/90
+
+Design and implementation of this program was paid for by U.S. tax
+dollars.  Therefore it is public domain.  However, the author and NIST
+would appreciate credit if this program or parts of it are used.
+*/
+
 #define _XOPEN_SOURCE 
 #include <stdio.h>    // stderr, stdin, stdout - standard I/O streams
 #include <stdlib.h>

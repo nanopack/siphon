@@ -16,11 +16,12 @@ void
 usage(void)
 {
   fprintf(stderr,"\nsiphon - output stream formatter\n\n");
-  fprintf(stderr,"Usage: siphon [options]\n");
+  fprintf(stderr,"Usage: siphon [options] [-- <command to exec>]\n");
 	fprintf(stderr,"       siphon -p '-> ' or --prefix '-> '\n");
 	fprintf(stderr,"       siphon -h or --help\n\n");
 	fprintf(stderr,"Examples:\n");
 	fprintf(stderr,"       ls -lah / | siphon --prefix '-> '\n");
+  fprintf(stderr,"       siphon --prefix '-> ' -- ls -lah /\n");
 	exit(1);
 }
 
