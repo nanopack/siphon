@@ -28,10 +28,31 @@ echo "Received:"
 echo "$output"
 echo
 
+failed="false"
+
 if [[ "$output" != "$expected" ]]; then
   echo "FAIL"
-  exit 1
+  failed="true"
 else
   echo "SUCCESS"
-  exit 0
 fi
+
+
+
+for i in test1 test2
+do
+  src/siphon --prefix "=> " -- tests/sloth.sh tests/${i}.in | tee /tmp/${i}.out
+  if [ "$(md5sum tests/${i}.out | awk '{print $1}')" = "$(md5sum /tmp/${i}.out | awk '{print $1}')" ]; then
+  	echo "SUCCESS"
+  else
+  	failed="true"
+  	echo "FAIL"
+  fi
+  rm /tmp/${i}.out
+done
+
+if [ "$failed" = "true" ]; then
+  exit 1
+fi
+
+exit 0
