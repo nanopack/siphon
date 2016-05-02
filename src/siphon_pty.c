@@ -56,6 +56,7 @@ would appreciate credit if this program or parts of it are used.
 #include <fcntl.h>
 #include <stropts.h>
 #include <string.h>
+#include "siphon_pty.h"
 
 #define TRUE 1
 #define FALSE 0
@@ -74,7 +75,6 @@ void (*exp_child_exec_prelude)() = 0;
 void (*exp_close_in_child)() = 0;
 static int exp_autoallocpty = 1;
 static int exp_pty[2];
-static pid_t exp_pid;
 static int knew_dev_tty;/* true if we had our hands on /dev/tty at any time */
 struct termios exp_tty_original, exp_tty_current;
 int exp_dev_tty;
@@ -82,6 +82,7 @@ char *master_name;
 char *slave_name;
 struct winsize winsize;
 char *exp_pty_slave_name;
+pid_t exp_pid;
 
 static int locked = FALSE;
 static char lock[] = "/tmp/ptylock.XXXX"; /* XX is replaced by pty id */
@@ -187,7 +188,7 @@ char *s;  /* stty args */
 /* diagnostics to parent stderr, since stderr has is now child's */
 /* Maybe someday they will fix stty? */
 /*      expDiagLogPtrStr("exp_getptyslave: (default) stty %s\n",DFLT_STTY);*/
-      pty_stty("sane",slave_name);
+      pty_stty("sane -opost",slave_name);
     }
 
     /* lastly, give user chance to override any terminal parms */

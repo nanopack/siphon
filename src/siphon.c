@@ -75,6 +75,9 @@ main(int argc, char *argv[])
     else {
       stream(prefix, fd);
     }
+    int child_status;
+    waitpid(exp_pid, &child_status, 0);
+    exit(WEXITSTATUS(child_status));
   }
 
 
