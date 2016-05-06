@@ -8,7 +8,7 @@
 bool
 is_sequence_end(char *c)
 {
-  char terminators[] = "ABCDEFGHJKRSTfminsulhp"
+  char terminators[] = "ABCDEFGHJKRSTfminsulhp";
 
   int i;
   for (i = 0; i < strlen(terminators); i++) {
