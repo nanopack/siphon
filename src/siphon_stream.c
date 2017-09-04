@@ -162,6 +162,10 @@ stream_interactive(char *prefix, FILE *subproc, FILE *in)
   // set some buffers for reading from stdin
   char stdin_buffer[STDIN_BUF_SIZE];
   
+  // notify that stdin was written to, and how
+  // much so we know to ignore that in the output
+  int stdin_written = 0;
+  
   while(1){
 
     FD_ZERO(&fds);
@@ -175,6 +179,26 @@ stream_interactive(char *prefix, FILE *subproc, FILE *in)
     // if we receive anything on stdout/stderr of the subprocess, we
     // process the buffer and print it out to the screen
     if (FD_ISSET(subproc_fileno, &fds)){
+      
+      // first off, if there is something in the stdin buffer, let's pull
+      // that much off, so that it's not repeated in the output
+      if (stdin_written > 0) {
+        
+        // grab the amount in the buffer to read
+        int stdin_recv_len = 
+          (BUF_SIZE > stdin_written) ? stdin_written : BUF_SIZE;
+        
+        // update the buffer for the next iteration
+        stdin_written = 
+          (BUF_SIZE > stdin_written) ? 0 : stdin_written - BUF_SIZE;
+          
+        // read the bytes, but don't process them as output
+        if (fgets(buffer, stdin_recv_len, subproc))
+          continue;
+        else
+          return;
+      }
+      
       if (fgets(buffer, BUF_SIZE, subproc))
         process_buffer(prefix);
       else
@@ -184,9 +208,19 @@ stream_interactive(char *prefix, FILE *subproc, FILE *in)
     // if we receive anything from stdin, we just pipe it into the stdin
     // of the subprocess that we're running
     if (FD_ISSET(in_fileno, &fds)){
-      if (fgets(stdin_buffer, STDIN_BUF_SIZE, in))
+      if (fgets(stdin_buffer, STDIN_BUF_SIZE, in)) {
+        // update the stdin_written counter so the read can ignore
+        stdin_written += strlen(stdin_buffer) + 1;
+        
+        // also, since we're actually receiving input, that means that
+        // the user must have pressed the enter key. So, we need to explicitly
+        // set newline to true, so that the next round of actual output will
+        // be prefixed properly
+        new_line = true;
+        
+        // now write the input to the subprocess
         fputs(stdin_buffer, subproc);
-      else
+      } else
         return;
     }
   }
