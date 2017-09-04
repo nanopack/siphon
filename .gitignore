@@ -11,5 +11,6 @@ Makefile.in
 /depcomp
 /install-sh
 /missing
+/tmp
 .deps
 .vagrant
