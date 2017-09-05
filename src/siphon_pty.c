@@ -44,7 +44,7 @@ dollars.  Therefore it is public domain.  However, the author and NIST
 would appreciate credit if this program or parts of it are used.
 */
 
-#define _XOPEN_SOURCE 
+#define _XOPEN_SOURCE 500
 #include <stdio.h>    // stderr, stdin, stdout - standard I/O streams
 #include <stdlib.h>
 #include <stdbool.h>  // boolean type and values
@@ -56,6 +56,9 @@ would appreciate credit if this program or parts of it are used.
 #include <fcntl.h>
 #include <stropts.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
 #include "siphon_pty.h"
 
 #define TRUE 1
@@ -111,9 +114,7 @@ struct termios exp_tty_current, exp_tty_cooked;
 
 
 void
-exp_slave_control(master,control)
-int master;
-int control;  /* if 1, enable pty trapping of close/open/ioctl */
+exp_slave_control(int master, int control)
 {
 }
 
@@ -126,8 +127,7 @@ exp_pty_unlock(void)
   }
 }
 
-int exp_window_size_set(fd)
-int fd;
+void exp_window_size_set(int fd)
 {
   ioctl(fd,TIOCSWINSZ,&winsize);
 }
@@ -146,9 +146,7 @@ exp_init_tty()
 }
 
 static void
-pty_stty(s,name)
-char *s;    /* args to stty */
-char *name;   /* name of pty */
+pty_stty(char *s, char *name)
 {
   char buf[MAX_ARGLIST];  /* overkill is easier */
   void (*old)();  /* save old sigalarm handler */
@@ -159,15 +157,13 @@ char *name;   /* name of pty */
   signal(SIGCHLD, old); /* restore signal handler */
 }
 
+void exp_window_size_get(int fd)
+{
+  ioctl(fd,TIOCGWINSZ,&winsize);
+}
 
 static void
-ttytype(request,fd,ttycopy,ttyinit,s)
-int request;
-int fd;
-    /* following are used only if request == SET_TTYTYPE */
-int ttycopy;  /* true/false, copy from /dev/tty */
-int ttyinit;  /* if true, initialize to sane state */
-char *s;  /* stty args */
+ttytype(int request, int fd, int ttycopy, int ttyinit,char *s)
 {
   if (request == GET_TTYTYPE) {
     if (-1 == tcgetattr(fd, &exp_tty_original)) {
@@ -201,10 +197,7 @@ char *s;  /* stty args */
 }
 
 int
-exp_getptyslave(
-    int ttycopy,
-    int ttyinit,
-    char *stty_args)
+exp_getptyslave(int ttycopy, int ttyinit, char *stty_args)
 {
   int slave, slave2;
   char buf[10240];
@@ -242,12 +235,6 @@ exp_getptyslave(
   return(slave);
 }
 
-int exp_window_size_get(fd)
-int fd;
-{
-  ioctl(fd,TIOCGWINSZ,&winsize);
-}
-
 int
 exp_getptymaster()
 {
@@ -276,8 +263,7 @@ exp_getptymaster()
 }
 
 static struct f *
-fd_new(fd)
-int fd;
+fd_new(int fd)
 {
   int i, low;
   struct f *fp;
@@ -329,11 +315,7 @@ exp_init_pty()
 }
 
 int
-exp_spawnv(prefix,prefix_set,file,argv)
-char *prefix;
-bool prefix_set;
-char *file;
-char *argv[]; /* some compiler complains about **argv? */
+exp_spawnv(char *prefix,bool prefix_set,char *file, char *argv[])
 {
   int cc;
   int errorfd;  /* place to stash fileno(stderr) in child */
