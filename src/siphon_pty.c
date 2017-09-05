@@ -315,7 +315,7 @@ exp_init_pty()
 }
 
 int
-exp_spawnv(char prefix, bool prefix_set, char *file, char *argv[])
+exp_spawnv(char *prefix,bool prefix_set,char *file, char *argv[])
 {
   int cc;
   int errorfd;  /* place to stash fileno(stderr) in child */
