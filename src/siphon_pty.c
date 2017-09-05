@@ -44,7 +44,7 @@ dollars.  Therefore it is public domain.  However, the author and NIST
 would appreciate credit if this program or parts of it are used.
 */
 
-#define _XOPEN_SOURCE 
+#define _XOPEN_SOURCE 500
 #include <stdio.h>    // stderr, stdin, stdout - standard I/O streams
 #include <stdlib.h>
 #include <stdbool.h>  // boolean type and values
@@ -56,6 +56,9 @@ would appreciate credit if this program or parts of it are used.
 #include <fcntl.h>
 #include <stropts.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
 #include "siphon_pty.h"
 
 #define TRUE 1
@@ -126,7 +129,7 @@ exp_pty_unlock(void)
   }
 }
 
-int exp_window_size_set(fd)
+void exp_window_size_set(fd)
 int fd;
 {
   ioctl(fd,TIOCSWINSZ,&winsize);
@@ -159,6 +162,11 @@ char *name;   /* name of pty */
   signal(SIGCHLD, old); /* restore signal handler */
 }
 
+int exp_window_size_get(fd)
+int fd;
+{
+  ioctl(fd,TIOCGWINSZ,&winsize);
+}
 
 static void
 ttytype(request,fd,ttycopy,ttyinit,s)
@@ -240,12 +248,6 @@ exp_getptyslave(
 
   (void) exp_pty_unlock();
   return(slave);
-}
-
-int exp_window_size_get(fd)
-int fd;
-{
-  ioctl(fd,TIOCGWINSZ,&winsize);
 }
 
 int
