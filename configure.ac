@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
 
-AC_INIT([siphon], [0.0.1])
+AC_INIT([siphon], [1.3.0])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AC_CONFIG_SRCDIR([src/siphon.c])
 
